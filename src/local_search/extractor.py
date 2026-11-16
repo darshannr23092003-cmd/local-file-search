@@ -7,31 +7,39 @@ SUPPORTED_TEXT_EXTENSIONS = {
     ".py",
     ".java",
     ".docx",
+    ".pdf",
 }
 
 
 def extract_text(file_path: Path) -> str:
     """
-    Extract text from supported UTF-8 text files.
+    Extract text from supported file formats.
 
     Raises:
         ValueError: If the file extension is unsupported.
         FileNotFoundError: If the file does not exist.
         UnicodeDecodeError: If the file is not valid UTF-8.
     """
-    if file_path.suffix.lower() not in SUPPORTED_TEXT_EXTENSIONS:
-        raise ValueError(f"Unsupported file type: {file_path.suffix}")
-    
-    if file_path.suffix.lower() == ".pdf":
+    extension = file_path.suffix.lower()
+
+    if extension not in SUPPORTED_TEXT_EXTENSIONS:
+        raise ValueError(f"Unsupported file type: {extension}")
+
+    if extension == ".pdf":
         return extract_pdf_text(file_path)
 
-    if file_path.suffix.lower() == ".docx":
+    if extension == ".docx":
         return extract_docx_text(file_path)
 
     with file_path.open("r", encoding="utf-8") as file:
         return file.read()
 
 def extract_pdf_text(file_path: Path) -> str:
+    """
+    Extract text from all pages of a PDF document.
+
+    Pages without extractable text are treated as empty strings.
+    """
     reader = PdfReader(file_path)
 
     pages = []
