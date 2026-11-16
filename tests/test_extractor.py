@@ -3,6 +3,7 @@ from local_search.extractor import extract_text, extract_pdf_text
 import pytest
 from pypdf import PdfWriter
 from reportlab.pdfgen import canvas
+from docx import Document
 
 def test_extract_text_from_txt(tmp_path):
     # Arrange: create a sample text file
@@ -88,3 +89,26 @@ def test_extract_text_from_pdf_with_content(tmp_path):
     result = extract_pdf_text(file_path)
 
     assert "Hello PDF" in result
+
+def test_extract_text_from_docx(tmp_path):
+    file_path = tmp_path / "sample.docx"
+
+    document = Document()
+    document.add_paragraph("Hello DOCX")
+    document.add_paragraph("Local search engine")
+    document.save(file_path)
+
+    result = extract_text(file_path)
+
+    assert "Hello DOCX" in result
+    assert "Local search engine" in result
+
+def test_extract_text_from_empty_docx(tmp_path):
+    file_path = tmp_path / "empty.docx"
+
+    document = Document()
+    document.save(file_path)
+
+    result = extract_text(file_path)
+
+    assert result == ""
